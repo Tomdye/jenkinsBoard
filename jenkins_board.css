@@ -1,0 +1,74 @@
+body {
+    background: black;
+    color: #5F5F5F;
+    font-family: Calibri, "Trebuchet MS", Arial, Helvetica, clean, sans-serif;
+    font-size: 22px;
+    overflow-x: hidden;
+}
+
+h2 {
+    padding: 5px;
+    margin: 5px;
+    font-size: 24px;
+}
+
+#jb_overall_status {
+    font-size: 30px;
+    text-align: center;
+    font-weight: bold;
+    padding-top: 0.3em;
+    padding-bottom: 0.4em;
+    overflow: hidden;
+    margin-bottom: 2%;
+    background: transparent !important;
+}
+#jb_detailed_status {
+    margin-right: -2%;
+}
+#jb_detailed_status div {
+    text-align: center;
+    padding: 2px;
+    margin: 5px;
+    width: 30%;
+    float: left;
+    height: 180px;
+}
+
+ul {
+    margin: 0;
+}
+
+
+
+
+.red {
+    color: #fff;
+    background-color: red;
+    text-shadow: 1px 1px 7px black;
+}
+.blue {
+    color: #fff;
+    background-color: green;
+    text-shadow: 1px 1px 7px black;
+}
+
+
+.anime.x_on {
+    -webkit-transition-property: opacity;
+    -webkit-transition-duration: 1s;
+    -webkit-transition-timing-function: cubic-bezier;
+    -moz-transition-property: opacity;
+    -moz-transition-duration: 1s;
+    -moz-transition-timing-function: cubic-bezier;
+    opacity: 1.0;
+}
+
+.anime {
+    -moz-transition-property: opacity;
+    -moz-transition-duration: 0.5s;
+    -moz-transition-timing-function: cubic-bezier;
+    -webkit-transition-property: opacity;
+    -webkit-transition-duration: 0.5s;
+    -webkit-transition-timing-function: cubic-bezier;
+    opacity: 0.5;
+}
