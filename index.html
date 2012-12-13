@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
-        <title>Jenkins Status Board</title>
-        <link href='jenkins_board.css' rel="stylesheet" type="text/css"/>
-    </head>
-    <body>
-        <div id='jb_overall_status'></div>
-        <div id='jb_detailed_status'></div>
-        <script src='jenkins_board.js'></script>
-        <script src='start.js'></script>
-    </body>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+		<title>Jenkins Status Board</title>
+		
+		<link rel="stylesheet/less" type="text/css" href="styles/main.less">
+    	<script src="./js/less.js" type="text/javascript"></script>
+	</head>
+	<body>
+		<h1>Status Board</h1>
+		<ul id="list"></ul>
+
+		<script data-dojo-config="async: 1, tlmSiblingOfDojo: 0, isDebug: 1" src="js/dojo/dojo.js"></script>
+		<script src="js/app/run.js"></script>
+	</body>
 </html>
