@@ -1,6 +1,16 @@
-define(["dojo/_base/declare", "dojo/request/script", "dojo/on", "dojo/_base/lang"], function (declare, script, on, lang) {
+define([
+	"dojo/_base/declare",
+	"dojo/request/script",
+	"dojo/on",
+	"dojo/_base/lang"
+], function (
+	declare,
+	script,
+	on,
+	lang
+) {
 	return declare("app.JenkinsBoard", [], {
-		
+
 		tree: "jobs[name,color,builds[timestamp,result,culprits[fullName]]]",
 		suffix: "api/json",
 		jsonpCallback: "jenkinsBoardJsonpCallback",
@@ -17,7 +27,7 @@ define(["dojo/_base/declare", "dojo/request/script", "dojo/on", "dojo/_base/lang
 			this.inherited(arguments);
 		},
 
-		get: function (url) {			
+		get: function (url) {
 			script.get(url + this.suffix, {
 				query: {
 					jsonp: this.jsonpCallback,
