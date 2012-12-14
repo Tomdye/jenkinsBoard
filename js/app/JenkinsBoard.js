@@ -66,12 +66,12 @@ define([
 			});
 
 			// Update…
-			var p = d3.select("body").selectAll("p")
+			var p = d3.select("body").selectAll("div")
 			    .data(items)
 			    .text(function (job) {
-			    	return "My name is: " + job.name + ", my color is: " + job.color;
+			    	return "Name: " + job.name + ", Color: " + job.color;
 			    })
-			    .style("color", function (job) {
+			    .style("background", function (job) {
 			    	return (job.color === "blue") ? "green" : "red";
 			    })
 			    .style("font-size", function (job) {
@@ -79,15 +79,16 @@ define([
 			    });
 
 			// Enter…
-			p.enter().append("p")
+			p.enter().append("div")
 				.text(function (job) {
-			    	return "My name is: " + job.name + ", my color is: " + job.color;
+			    	return "Name: " + job.name + ", Color: " + job.color;
 			    })
-			    .style("color", function (job) {
+			    .attr("class", "job")
+			    .style("background", function (job) {
 			    	return (job.color === "blue") ? "green" : "red";
 			    })
-			    .style("font-size", function (job) {
-			    	return (job.color === "blue_anime" || job.color === "red_anime") ? "24px" : "12px";
+			    .style("padding", function (job) {
+			    	return (job.color === "blue_anime" || job.color === "red_anime") ? "20px" : "5px";
 			    });
 
 			// Exit…
