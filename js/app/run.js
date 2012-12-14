@@ -21,10 +21,11 @@ require({
 		// If you are registering a package that has an identical name and location, you can just pass a string
 		// instead, and it will configure it using that string for both the "name" and "location" properties. Handy!
 		{ name: "dojo", location: "js/dojo", map: {} },
-		"dijit",
+		{ name: "dijit", location: "js/dijit", map: {} },
 
 		// For reference, this is what a more verbose package declaration looks like.
-		{ name: "app", location: "js/app", map: {} }
+		{ name: "app", location: "js/app", map: {} },
+		{ name: "vendor", location: "js/vendor", map: {} }
 	]
 // Require `app`. This loads the main application module, `app/main`, since we registered the `app` package above.
 }, [ "app" ]);

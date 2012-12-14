@@ -4,10 +4,18 @@ define([ "require" ], function (require) {
 	 * This is an increasingly common pattern when dealing with applications that run in different environments that
 	 * require different functionality (i.e. client/server or desktop/tablet/phone).
 	 */
-	require([ "app/JenkinsBoard", "dojo/text!app/config.json", "dojo/domReady!" ], function (JenkinsBoard, config) {
+	require([ "app/JobsModel", "app/JenkinsBoard", "dojo/text!app/config.json", "dojo/domReady!" ], function (JobsModel, JenkinsBoard, config) {
 		config = JSON.parse(config);
-		var jb = new JenkinsBoard;
+		
+		var jobsModel = new JobsModel({"url": config.url}),
+			jb = new JenkinsBoard({"model": jobsModel});
 
-		jb.get(config.url);
+		jb.startup();
+
+
+		/*jb.fetch().then(function () {
+			var res = jb.get();
+			debugger;
+		});*/
 	});
 });
