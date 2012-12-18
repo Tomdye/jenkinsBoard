@@ -1,5 +1,5 @@
 {
-    "url" : "http://buildbot.complinet.local/hudson/view/UI/",
+    "url" : "http://buildbot.complinet.local/hudson/view/All/",
     "title" : "GRC STATUS BOARD",
     "ignores" : ["etl-service-c4"]
 }

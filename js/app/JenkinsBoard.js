@@ -58,17 +58,42 @@ define([
 
 		_render: function (items) {
 			items.sort(function (a,b) {
-				if (a.color < b.color)
-					return 1;
-				else if(a.color > b.color)
+				if (a.color === "blue_anime" || a.color === "red_anime")
 					return -1;
+				else if (b.color === "blue_anime" || b.color === "red_anime")
+					return 1;
+				else if (a.color < b.color)
+					return -1;
+				else if(a.color > b.color)
+					return 1;
 				return 0;
 			});
 
 			// Update…
 			var p = d3.select("body").selectAll("div")
-			    .data(items)
-			    .text(function (job) {
+			    .data(items).text(function (job) {
+			    	return "Name: " + job.name + ", Color: " + job.color;
+			    })
+			    .attr("class", function (job) {
+			    	return (job.color === "blue_anime" || job.color === "red_anime") ? "job building" : "job";
+			    })
+			    .style("background", function (job) {
+			    	return (job.color === "blue") ? "green" : "red";
+			    });
+
+			    p.enter().append("div")
+				.text(function (job) {
+			    	return "Name: " + job.name + ", Color: " + job.color;
+			    })
+			    .attr("class", function (job) {
+			    	return (job.color === "blue_anime" || job.color === "red_anime") ? "job building" : "job";
+			    })
+			    .style("background", function (job) {
+			    	return (job.color === "blue") ? "green" : "red";
+			    });
+			    
+			    p.exit().remove();
+			    /*.text(function (job) {
 			    	return "Name: " + job.name + ", Color: " + job.color;
 			    })
 			    .style("background", function (job) {
@@ -76,23 +101,13 @@ define([
 			    })
 			    .style("font-size", function (job) {
 			    	return (job.color === "blue_anime" || job.color === "red_anime") ? "24px" : "12px";
-			    });
+			    });*/
 
 			// Enter…
-			p.enter().append("div")
-				.text(function (job) {
-			    	return "Name: " + job.name + ", Color: " + job.color;
-			    })
-			    .attr("class", "job")
-			    .style("background", function (job) {
-			    	return (job.color === "blue") ? "green" : "red";
-			    })
-			    .style("padding", function (job) {
-			    	return (job.color === "blue_anime" || job.color === "red_anime") ? "20px" : "5px";
-			    });
+			//p
 
 			// Exit…
-			p.exit().remove();
+			//p
 
 
 			/*d3.select("body").selectAll("p")
