@@ -11,11 +11,5 @@ define([ "require" ], function (require) {
 			jb = new JenkinsBoard({"model": jobsModel});
 
 		jb.startup();
-
-
-		/*jb.fetch().then(function () {
-			var res = jb.get();
-			debugger;
-		});*/
 	});
 });

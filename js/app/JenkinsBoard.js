@@ -4,20 +4,39 @@ define([
 	"dijit/_TemplatedMixin",
 	"dojo/_base/lang",
 	"dojo/on",
-	"dojo/text!./resources/JenkinsBoard.html",
-	"vendor/d3"
+	"dojo/_base/array",
+	"dojo/dom-geometry",
+	"dojo/dom",
+	"dojo/text!./resources/JenkinsBoard.html"	
 ], function (
 	declare,
 	_Widget,
 	_TemplatedMixin,
 	lang,
 	on,
+	arrayUtils,
+	domGeom,
+	dom,
 	template
 ) {
+	 function pluck(v) {
+      var args = [].slice.call(arguments,1);
+      return function(d) {
+        return typeof(d[v]) === "function" ? d[v].apply(d,args) : d[v];
+      }
+    }
+
 	return declare("app.JenkinsBoard", [_Widget, _TemplatedMixin], {
 		templateString: template,
 		model: null,
+		daysThreshold: 3,
+		jobWidth: 130,
 		//_observer: null,
+		
+		_getWindowSize: function () {
+			var list = dom.byId("list");
+			return domGeom.getContentBox(list);
+		},
 
 		_setModelAttr: function (model) {
 			this.model = model;
@@ -25,38 +44,27 @@ define([
 				this._render(response);
 
 				on(model, "fetchResponse", lang.hitch(this, "_onFetchEvent"));
-
-				/*if (this._observer && this._observer.cancel) {
-					this._observer.cancel();
-				}
-
-				this._observer = model.get({}).observe(lang.hitch(this, "_onObserveEvent"), true);*/
 			}));
 
 			model.startTicker(10000);
 		},
 
-		postCreate: function () {
-			var self = this;
-			/*setTimeout(function () {
-				self.model.store.put({"name": "newItem"});
-			}, 500);
-
-			setTimeout(function () {
-				self.model.store.put({"name": "newItem2"});
-			}, 1000);
-
-			setTimeout(function () {
-				self.model.store.remove("newItem2");
-			}, 3000);
-
-			setTimeout(function () {
-				self.model.store.remove("newItem");
-			}, 5000);*/
-
-		},
-
 		_render: function (items) {
+			var size = this._getWindowSize();
+			var numAccross = Math.floor(size.w / this.jobWidth);
+
+			items = arrayUtils.filter(items, lang.hitch(this, function (job) {
+				var compareDate = new Date();
+				compareDate.setDate(compareDate.getDate() - this.daysThreshold);
+
+				if (job.builds[0] && job.builds[0].timestamp) {
+					var lastBuildDate = new Date(job.builds[0].timestamp);
+					return lastBuildDate > compareDate;
+				} else {
+					return false;
+				}
+			}));
+
 			items.sort(function (a,b) {
 				if (a.color === "blue_anime" || a.color === "red_anime")
 					return -1;
@@ -70,53 +78,46 @@ define([
 			});
 
 			// Update…
-			var p = d3.select("body").selectAll("div")
-			    .data(items).text(function (job) {
-			    	return "Name: " + job.name + ", Color: " + job.color;
-			    })
-			    .attr("class", function (job) {
-			    	return (job.color === "blue_anime" || job.color === "red_anime") ? "job building" : "job";
-			    })
-			    .style("background", function (job) {
-			    	return (job.color === "blue") ? "green" : "red";
-			    });
+			var p = d3.select("#list").selectAll("li")
+				.data(items, pluck("name"))
+				.text(function (job, a, b, c) {
+					return job.name + ", Color: " + job.color;
+				})
+				.attr("class", function (job) {
+					return (job.color === "blue_anime" || job.color === "red_anime") ? "job building" : "job";
+				})
+				.style("background", function (job) {
+					return (job.color === "blue") ? "green" : "red";
+				})
+				.style("left", lang.hitch(this, function (job, index) {
+					var i = index%numAccross;
+					return (i * (this.jobWidth)) + "px";
+				}))
+				.style("top", lang.hitch(this, function (job, index) {
+					var i = Math.floor(index / numAccross);
+					return (i * this.jobWidth) + "px";
+				}));
 
-			    p.enter().append("div")
-				.text(function (job) {
-			    	return "Name: " + job.name + ", Color: " + job.color;
-			    })
-			    .attr("class", function (job) {
-			    	return (job.color === "blue_anime" || job.color === "red_anime") ? "job building" : "job";
-			    })
-			    .style("background", function (job) {
-			    	return (job.color === "blue") ? "green" : "red";
-			    });
-			    
-			    p.exit().remove();
-			    /*.text(function (job) {
-			    	return "Name: " + job.name + ", Color: " + job.color;
-			    })
-			    .style("background", function (job) {
-			    	return (job.color === "blue") ? "green" : "red";
-			    })
-			    .style("font-size", function (job) {
-			    	return (job.color === "blue_anime" || job.color === "red_anime") ? "24px" : "12px";
-			    });*/
-
-			// Enter…
-			//p
-
-			// Exit…
-			//p
-
-
-			/*d3.select("body").selectAll("p")
-				.data(items)
-  				.enter().append("p")
-    			.text(function(job) { return "I’m job " + job.name + "!"; });*/
-    			/*.exit().remove()
-				.append("span")
-				.text("There was an item here");*/
+				p.enter().append("li")
+				.text(function (job, a, b, c) {
+					return job.name + ", Color: " + job.color;
+				})
+				.attr("class", function (job) {
+					return (job.color === "blue_anime" || job.color === "red_anime") ? "job building" : "job";
+				})
+				.style("background", function (job) {
+					return (job.color === "blue") ? "green" : "red";
+				})
+				.style("left", lang.hitch(this, function (job, index) {
+					var i = index%numAccross;
+					return (i * (this.jobWidth)) + "px";
+				}))
+				.style("top", lang.hitch(this, function (job, index) {
+					var i = Math.floor(index / numAccross);
+					return (i * this.jobWidth) + "px";
+				}));
+				
+				p.exit().remove();
 		},
 
 		_onFetchEvent: function (response) {

@@ -33,10 +33,6 @@ define([
 
 		constructor: function (args) {
 			lang.mixin(this, args);
-
-			/*this.store = new Memory({
-				idProperty: "name"
-			});*/
 		},
 
 		destroy: function () {
@@ -77,16 +73,9 @@ define([
 			clearInterval(this._ticker);
 		},
 
-		/*get: function (query) {
-			return this.store.query(query);
-		},*/
-
 		_fetchResponse: function (def, response) {
-			//this.store.setData(response.jobs);
 			this.emit("fetchResponse", response.jobs);
 			def.resolve(response.jobs);
 		}
-
-		//onFetchResponse: function (response) {}
 	});
 });
