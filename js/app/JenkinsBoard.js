@@ -43,6 +43,10 @@ define([
 			model.fetch().then(lang.hitch(this, function (response) {
 				this._render(response);
 
+				on(window, "resize", function () {
+					model.fetch();
+				});
+
 				on(model, "fetchResponse", lang.hitch(this, "_onFetchEvent"));
 			}));
 
