@@ -6,6 +6,7 @@ define([
 	"dojo/on",
 	"dojo/_base/array",
 	"dojo/dom-geometry",
+	"dojo/_base/array",
 	"dojo/dom",
 	"dojo/text!./resources/JenkinsBoard.html"	
 ], function (
@@ -16,6 +17,7 @@ define([
 	on,
 	arrayUtils,
 	domGeom,
+	arrayUtil,
 	dom,
 	template
 ) {
@@ -29,8 +31,8 @@ define([
 	return declare("app.JenkinsBoard", [_Widget, _TemplatedMixin], {
 		templateString: template,
 		model: null,
-		daysThreshold: 3,
-		jobWidth: 130,
+		daysThreshold: 5,
+		jobWidth: 330,
 		//_observer: null,
 		
 		_getWindowSize: function () {
@@ -40,15 +42,14 @@ define([
 
 		_setModelAttr: function (model) {
 			this.model = model;
-			model.fetch().then(lang.hitch(this, function (response) {
-				this._render(response);
 
-				on(window, "resize", function () {
-					model.fetch();
-				});
+			on(window, "resize", function () {
+				model.fetch();
+			});
 
-				on(model, "fetchResponse", lang.hitch(this, "_onFetchEvent"));
-			}));
+			on(model, "fetchResponse", lang.hitch(this, "_onFetchEvent"));
+
+			model.fetch();
 
 			model.startTicker(10000);
 		},
@@ -81,12 +82,33 @@ define([
 				return 0;
 			});
 
+			var getDomContents = function (job) {
+				var str = "";
+
+					str += "<h1>" + job.name + "</h1>";
+					str += "<h2>Colour: " + job.color + "</h2>";
+					if (job.builds && job.builds.length > 0) {
+						var build = job.builds[0];
+
+						if (build.culprits && build.culprits.length > 0) {
+							str += "<h3>Culprits</h3>";
+							arrayUtil.forEach(build.culprits, function (culprit, index) {
+								if (culprit.fullName) {
+									str += "<div>" + (index + 1) + ": ";
+									str += culprit.fullName;
+									str += "</div>";
+								}								
+							});
+						}
+					}
+
+					return str;
+			};
+
 			// Update…
 			var p = d3.select("#list").selectAll("li")
 				.data(items, pluck("name"))
-				.text(function (job, a, b, c) {
-					return job.name + ", Color: " + job.color;
-				})
+				.html(getDomContents)
 				.attr("class", function (job) {
 					return (job.color === "blue_anime" || job.color === "red_anime") ? "job building" : "job";
 				})
@@ -103,9 +125,7 @@ define([
 				}));
 
 				p.enter().append("li")
-				.text(function (job, a, b, c) {
-					return job.name + ", Color: " + job.color;
-				})
+				.html(getDomContents)
 				.attr("class", function (job) {
 					return (job.color === "blue_anime" || job.color === "red_anime") ? "job building" : "job";
 				})

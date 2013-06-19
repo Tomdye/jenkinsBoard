@@ -1,8 +1,5 @@
 .DS_Store
 js/dojo
 js/dijit
-js/dojo/
-js/dijit/
-js/dojo/*
-js/dijit/*
-
+js/dojox
+js/util

@@ -6,6 +6,7 @@ define([
 	"dojo/_base/lang",
 	"dojo/store/Memory",
 	"dojo/Evented",
+	"dojo/request",
 	//"dojo/store/Observable",
 	"dojo/Deferred"
 ], function (
@@ -16,6 +17,7 @@ define([
 	lang,
 	Memory,
 	Evented,
+	request,
 	//Observable,
 	Deferred
 ) {
@@ -46,22 +48,29 @@ define([
 				return false;
 			}
 
-			var def = new Deferred();
+			var self = this;
 
 			//setup a jsonpCallbackFunc
 			//because this jsonp is a bitch
 			//for some reason!
-			window[this.jsonpCallback] = lang.hitch(this, "_fetchResponse", def);
+			//window[this.jsonpCallback] = lang.hitch(this, "_fetchResponse", def);
 
-			script.get(this.url + this.suffix, {
+			request.get(this.url + this.suffix, {
+				handleAs: "json",
+				preventCache: true,
 				query: {
-					jsonp: this.jsonpCallback,
+					tree: this.tree
+				}
+			}).then(function (response) {
+				self.emit("fetchResponse", response.jobs);
+			});
+
+			/*script.get(this.url + this.suffix, {
+				query: {
 					tree: this.tree,
 					time: (new Date()).getTime()
 				}
-			});
-
-			return def;
+			});*/
 		},
 
 		startTicker: function (interval) {
@@ -71,11 +80,6 @@ define([
 
 		stopTicker: function () {
 			clearInterval(this._ticker);
-		},
-
-		_fetchResponse: function (def, response) {
-			this.emit("fetchResponse", response.jobs);
-			def.resolve(response.jobs);
 		}
 	});
 });
