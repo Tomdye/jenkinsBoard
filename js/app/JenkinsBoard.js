@@ -1,25 +1,33 @@
 define([
 	"dojo/_base/declare",
-	"dijit/_Widget",
+	"dijit/_WidgetBase",
 	"dijit/_TemplatedMixin",
+	"dijit/_WidgetsInTemplateMixin",
 	"dojo/_base/lang",
 	"dojo/on",
 	"dojo/_base/array",
 	"dojo/dom-geometry",
 	"dojo/_base/array",
 	"dojo/dom",
-	"dojo/text!./resources/JenkinsBoard.html"	
+	"dojo/text!./resources/JenkinsBoard.html",
+	"dijit/layout/BorderContainer",
+	"dijit/layout/ContentPane",
+	"./JobView"
 ], function (
 	declare,
-	_Widget,
+	_WidgetBase,
 	_TemplatedMixin,
+	_WidgetsInTemplateMixin,
 	lang,
 	on,
 	arrayUtils,
 	domGeom,
 	arrayUtil,
 	dom,
-	template
+	template,
+	BorderContainer,
+	ContentPane,
+	JobView
 ) {
 	 function pluck(v) {
       var args = [].slice.call(arguments,1);
@@ -28,34 +36,54 @@ define([
       }
     }
 
-	return declare("app.JenkinsBoard", [_Widget, _TemplatedMixin], {
+	return declare("app.JenkinsBoard", [_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
+		widgetsInTemplate: true,
+
 		templateString: template,
 		model: null,
 		daysThreshold: 5,
 		jobWidth: 330,
 		//_observer: null,
 		
+		_borderContainer: null,
+		_topPane: null,
+		_centerPane: null,
+		
 		_getWindowSize: function () {
-			var list = dom.byId("list");
-			return domGeom.getContentBox(list);
+			return domGeom.getContentBox(this.domNode);
+		},
+
+		resize: function () {
+			this._borderContainer.resize();
 		},
 
 		_setModelAttr: function (model) {
 			this.model = model;
 
-			on(window, "resize", function () {
+			/*on(window, "resize", function () {
 				model.fetch();
-			});
+			});*/
 
-			on(model, "fetchResponse", lang.hitch(this, "_onFetchEvent"));
+			//on(model, "fetchResponse", lang.hitch(this, "_onFetchEvent"));
 
-			model.fetch();
+			model.start().then(lang.hitch(this, function (evt) {
+				debugger;
+			}));
 
-			model.startTicker(10000);
+			//model.startTicker(10000);
 		},
 
 		_render: function (items) {
-			var size = this._getWindowSize();
+			arrayUtils.forEach(items, lang.hitch(this, function (item) {
+				var jobView = new JobView({
+					"data": item
+				}).placeAt(this._centerPane);
+			}));
+			/*var jobView = new JobView({
+				"data": items[0]
+			}).placeAt(this.center);*/
+
+			/*var size = this._getWindowSize();
 			var numAccross = Math.floor(size.w / this.jobWidth);
 
 			items = arrayUtils.filter(items, lang.hitch(this, function (job) {
@@ -141,7 +169,7 @@ define([
 					return (i * this.jobWidth) + "px";
 				}));
 				
-				p.exit().remove();
+				p.exit().remove();*/
 		},
 
 		_onFetchEvent: function (response) {

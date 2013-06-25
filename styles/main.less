@@ -1,11 +1,23 @@
-//@import "jenkinsBoard";
-@import "bootstrap";
-@import "bootstrap-responsive";
+//// Import a base stylesheet; if you have your own instead, you can remove this.
+@import "js/dojo/resources/dojo.css";
 
-body {
+// Import the Claro theme for skinning Dijit widgets; this can be swapped for
+// another theme, or removed if the app doesn"t use Dijit.
+@import "js/dijit/themes/claro/claro.css";
+
+
+@import "bootstrap";
+//@import "bootstrap-responsive";
+
+
+@import "../js/app/resources/JenkinsBoard";
+
+html, body {
 	background: #000;
 	width: 100%;
-	height: 100%;
+  height: 100%;
+  margin: 0;
+  overflow:hidden;
 }
 
 h1 {

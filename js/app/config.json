@@ -1,5 +1,6 @@
 {
-    "url" : "http://buildbot.complinet.local/hudson/view/FSP/",
+    "jenkinsUrl" : "http://buildbot.complinet.com/hudson/view/FSP/",
+    "githubUrl" : "https://github.complinet.com/api/v3/",
     "title" : "GRC STATUS BOARD",
     "ignores" : ["etl-service-c4"]
 }
