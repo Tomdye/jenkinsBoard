@@ -26,7 +26,7 @@ define([
 ) {
 	return declare("app.JobsModel", [_WidgetBase, Evented], {
 
-		tree: "jobs[name,color,builds[actions[causes[shortDescription]],timestamp,result,culprits[fullName]]]",
+		tree: "jobs[name,color,lastBuild[result,culprits[fullName],actions[causes[shortDescription]],building,estimatedDuration,timestamp],lastSuccessfulBuild[timestamp]]",
 		suffix: "api/json",
 		jsonpCallback: "jobsModelJsonpCallback",
 
@@ -54,6 +54,8 @@ define([
 		},
 
 		start: function () {
+			this.startTicker();
+
 			return this._fetch().then(lang.hitch(this, function (response) {
 				this.store.setData(response);
 			}));
@@ -63,6 +65,19 @@ define([
 			queryObj = queryObj || {};
 
 			return this.store.query(queryObj);
+		},
+
+		_onTick: function () {
+			this._fetch().then(lang.hitch(this, function (response) {
+				arrayUtil.forEach(response, lang.hitch(this, function (item, index) {
+					
+					if (index === 3) {
+						debugger;
+						item.color = "PINK";
+					}
+					this.store.put(item);
+				}));
+			}));
 		},
 
 		_fetch: function () {
@@ -81,9 +96,10 @@ define([
 				preventCache: true,
 				query: {
 					tree: this.tree
+					//depth: 3
 				}
 			}).then(lang.hitch(this, function (response) {
-				//debugger;
+				debugger;
 				//self.emit("fetchResponse", response.jobs);
 				return this._marshallResponse(response.jobs);
 			}));
@@ -101,17 +117,46 @@ define([
 		},
 
 		_marshallJob: function (job) {
-			var obj = {
-				"name": job.name,
-				"color": job.color
-			};
+			var lastBuild = job.lastBuild;
 
-			obj.culprits = this._findCulprits(job.builds);
+			job.building = lastBuild.building;
+			job.lastBuild.reviewer = this._findReviewer(lastBuild);
+			job.timeSinceBuild = this._getTimeSinceBuild(lastBuild);
 
-			return obj;
+			if (job.building) {
+				job.percentBuilt = this._getPercentBuilt(lastBuild, job.timeSinceBuild);
+			} else {
+				job.percentBuilt = 100;
+			}
+debugger;
+			return job;
 		},
 
-		_findCulprits: function (builds) {
+		_findReviewer: function (build) {
+			var reviewer = false;
+
+			if (build.actions[0] &&
+				build.actions[0].causes[0] &&
+				build.actions[0].causes[0].shortDescription) {
+				var desc = build.actions[0].causes[0].shortDescription;
+					if (desc.match(this._causeMatchString)) {
+						reviewer = desc.replace(this._causeMatchString, "");
+					}
+			}
+
+			return reviewer;
+		},
+
+		_getPercentBuilt: function (build, timeSinceBuild) {
+			return Math.floor(((timeSinceBuild / build.estimatedDuration) * 100));
+		},
+
+		_getTimeSinceBuild: function (build) {
+			var timeNow = new Date().getTime();
+			return timeNow - build.timestamp;
+		},
+
+		/*_findCulprits: function (builds) {
 			var obj = {};
 
 			if (builds.length > 0) {
@@ -131,11 +176,10 @@ define([
 			}
 
 			return obj;
-		},
+		},*/
 
-		startTicker: function (interval) {
-			var self = this;
-			this._ticker = setInterval(lang.hitch(this, "fetch"), interval);
+		startTicker: function () {
+			this._ticker = setInterval(lang.hitch(this, "_onTick"), this.config.interval);
 		},
 
 		stopTicker: function () {

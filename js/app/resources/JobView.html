@@ -1,3 +1,9 @@
 <div class="jobView">
-	<h1>${data.name}</h1>
+	<h3>${data.name}</h3>
+	<ul>
+		<li><strong>Building: </strong>${data.building}</li>
+	</ul>
+	<div class="progress progress-striped">
+		<div class="bar"  style="width: ${data.percentBuilt}%;"></div>
+	</div>
 </div>

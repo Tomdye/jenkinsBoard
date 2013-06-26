@@ -29,13 +29,6 @@ define([
 	ContentPane,
 	JobView
 ) {
-	 function pluck(v) {
-      var args = [].slice.call(arguments,1);
-      return function(d) {
-        return typeof(d[v]) === "function" ? d[v].apply(d,args) : d[v];
-      }
-    }
-
 	return declare("app.JenkinsBoard", [_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin], {
 		widgetsInTemplate: true,
 
@@ -44,11 +37,13 @@ define([
 		daysThreshold: 5,
 		jobWidth: 330,
 		//_observer: null,
-		
+
 		_borderContainer: null,
 		_topPane: null,
 		_centerPane: null,
-		
+
+		_jobItems: {},
+
 		_getWindowSize: function () {
 			return domGeom.getContentBox(this.domNode);
 		},
@@ -67,17 +62,32 @@ define([
 			//on(model, "fetchResponse", lang.hitch(this, "_onFetchEvent"));
 
 			model.start().then(lang.hitch(this, function (evt) {
-				debugger;
+				var results = model.query();
+
+				this._render(results);
+
+				results.observe(lang.hitch(this, "_onObserveChange"), true);
 			}));
 
 			//model.startTicker(10000);
 		},
 
+		_onObserveChange: function (item, removedFrom, insertedInto) {
+			debugger;
+		},
+
+		_buildJobItem: function (item) {
+			this._jobItems[item.name] = new JobView({
+				"data": item
+			}).placeAt(this._centerPane);
+		},
+
 		_render: function (items) {
+			debugger;
 			arrayUtils.forEach(items, lang.hitch(this, function (item) {
-				var jobView = new JobView({
-					"data": item
-				}).placeAt(this._centerPane);
+				if (!this._jobItems[item.name]) {
+					this._buildJobItem(item);
+				}
 			}));
 			/*var jobView = new JobView({
 				"data": items[0]
