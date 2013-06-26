@@ -122,6 +122,7 @@ define([
 			job.building = lastBuild.building;
 			job.lastBuild.reviewer = this._findReviewer(lastBuild);
 			job.timeSinceBuild = this._getTimeSinceBuild(lastBuild);
+			job.timeSinceSuccessfulBuild = this._getTimeSinceBuild(job.lastSuccessfulBuild);
 
 			if (job.building) {
 				job.percentBuilt = this._getPercentBuilt(lastBuild, job.timeSinceBuild);
@@ -155,6 +156,7 @@ debugger;
 			var timeNow = new Date().getTime();
 			return timeNow - build.timestamp;
 		},
+
 
 		/*_findCulprits: function (builds) {
 			var obj = {};
