@@ -70,14 +70,31 @@ define([
 		_onTick: function () {
 			this._fetch().then(lang.hitch(this, function (response) {
 				arrayUtil.forEach(response, lang.hitch(this, function (item, index) {
-					
-					if (index === 3) {
-						debugger;
-						item.color = "PINK";
+					debugger;
+					if (this._hasItemChanged(item)) {
+						this.store.put(item);
 					}
-					this.store.put(item);
 				}));
 			}));
+		},
+
+		_hasItemChanged: function (item) {
+			var changed = false,
+				storeItem = this.store.get(item.name),
+				lastTimestamp;
+
+			// If store item doesn't exist or is building
+			// then it's changed
+			if (!storeItem || item.building) {
+				changed = true;
+			} else {
+				lastTimestamp = storeItem.lastBuild.timestamp;
+				// If the last build timestamp is different
+				// then it's changed
+				changed = lastTimestamp !== item.lastBuild.timestamp;
+			}
+
+			return changed;
 		},
 
 		_fetch: function () {
@@ -99,17 +116,8 @@ define([
 					//depth: 3
 				}
 			}).then(lang.hitch(this, function (response) {
-				debugger;
-				//self.emit("fetchResponse", response.jobs);
 				return this._marshallResponse(response.jobs);
 			}));
-
-			/*script.get(this.url + this.suffix, {
-				query: {
-					tree: this.tree,
-					time: (new Date()).getTime()
-				}
-			});*/
 		},
 
 		_marshallResponse: function (data) {
@@ -122,14 +130,16 @@ define([
 			job.building = lastBuild.building;
 			job.lastBuild.reviewer = this._findReviewer(lastBuild);
 			job.timeSinceBuild = this._getTimeSinceBuild(lastBuild);
-			job.timeSinceSuccessfulBuild = this._getTimeSinceBuild(job.lastSuccessfulBuild);
+			if (job.lastSuccessfulBuild) {
+				job.timeSinceSuccessfulBuild = this._getTimeSinceBuild(job.lastSuccessfulBuild);
+			}
+
 
 			if (job.building) {
 				job.percentBuilt = this._getPercentBuilt(lastBuild, job.timeSinceBuild);
 			} else {
 				job.percentBuilt = 100;
 			}
-debugger;
 			return job;
 		},
 
