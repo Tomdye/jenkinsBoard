@@ -70,7 +70,6 @@ define([
 		_onTick: function () {
 			this._fetch().then(lang.hitch(this, function (response) {
 				arrayUtil.forEach(response, lang.hitch(this, function (item, index) {
-					debugger;
 					if (this._hasItemChanged(item)) {
 						this.store.put(item);
 					}
